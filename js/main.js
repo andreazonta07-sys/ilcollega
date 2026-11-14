@@ -63,7 +63,15 @@
     var chEl = $('#chiama'), chTop = -1, chBot = -1;
     if (chEl) { var cr0 = chEl.getBoundingClientRect(); chTop = cr0.top - pr.top; chBot = cr0.bottom - pr.top; }
 
-    /* --- sbarre di legno --- */
+    /* --- sbarre grandi: 20% legno, 40% corten, 40% acciaio (ogni gruppo di 5 ha esattamente 1 legno, 2 corten, 2 acciaio, in ordine mescolato) --- */
+    var matQueue = [], barIdx = 0;
+    function matFor() {
+      if (!matQueue.length) {
+        matQueue = ['wood', 'corten', 'corten', 'steel', 'steel'];
+        for (var i = matQueue.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)), t = matQueue[i]; matQueue[i] = matQueue[j]; matQueue[j] = t; }
+      }
+      return matQueue.pop();
+    }
     var y = small ? 72 : 64, side = rnd() < 0.5 ? 'l' : 'r';
     while (y < Math.min(H - 140, bigStart - 70)) {
       if (accTop >= 0 && y < accBot + 230 && y + 160 > accTop - 20) { y = accBot + 240; continue; }   // spazio libero per la coppia di lastre sotto le categorie
@@ -73,11 +81,13 @@
       var len = Math.round(minLen + rnd() * (maxLen - minLen) * (1 - 0.3 * t));
       if (rnd() < 0.62) side = side === 'l' ? 'r' : 'l';
       var el = document.createElement('i');
-      el.className = 'bar ' + side;
+      var mat = matFor(barIdx++);
+      el.className = 'bar ' + mat + ' ' + side;
       el.style.top = y + 'px';
       el.style.height = th + 'px';
       el.style.width = len + 'px';
-      el.style.backgroundPosition = brightPos(rnd);
+      if (mat === 'wood') el.style.backgroundPosition = brightPos(rnd);
+      else if (mat === 'corten') el.style.backgroundPosition = '-' + Math.round(rnd() * 500) + 'px -' + Math.round(rnd() * 300) + 'px';
       frag.appendChild(el);
       bars.push({ el: el, side: side, y: y, th: th, len: len });
       var gap = (24 + 380 * Math.pow(t, 1.12)) * 2.4 * (0.6 + rnd() * 0.85) * (small ? 0.8 : 1);   // spazi più ampi per tenere il nero all'80%
@@ -124,43 +134,8 @@
         }
       }
     }
-    zone(0.02, 0.67);
+    /* niente più quadrati né cerchi (corten o acciaio): sfondo solo con sbarre e crepe */
 
-    /* solo 3 quadrati in acciaio grigio lucido, ben distanziati lungo la pagina */
-    (function steelSquares() {
-      var y0 = 0.03 * H, y1 = 0.66 * H, ivs = [[y0, y1]];
-      function cut(a, b) {
-        var out = [];
-        ivs.forEach(function (iv) {
-          if (b <= iv[0] || a >= iv[1]) { out.push(iv); return; }
-          if (a > iv[0]) out.push([iv[0], a]);
-          if (b < iv[1]) out.push([b, iv[1]]);
-        });
-        ivs = out;
-      }
-      if (opTop >= 0) cut(opTop, opBot);
-      if (chTop >= 0) cut(chTop - 40, chBot + 40);
-      var L = ivs.reduce(function (s, iv) { return s + (iv[1] - iv[0]); }, 0);
-      var bandW = small ? 44 : Math.max(70, (W - Math.min(1180, W - 2 * 40)) / 2 - 12);
-      for (var k = 0; k < 3; k++) {
-        var tg = (k + 0.5) * L / 3, acc = 0, base = y0;
-        for (var q = 0; q < ivs.length; q++) { var len = ivs[q][1] - ivs[q][0]; if (tg <= acc + len) { base = ivs[q][0] + (tg - acc); break; } acc += len; }
-        for (var tries = 0; tries < 80; tries++) {
-          var s = Math.min(bandW - 10, Math.round((small ? 30 : 56) + rnd() * (small ? 14 : 34)));
-          var onLeft = (k % 2 === 0) === (rnd() < 0.85);
-          var x = onLeft ? Math.round(6 + rnd() * Math.max(1, bandW - s - 6)) : Math.round(W - bandW + rnd() * Math.max(1, bandW - s - 6));
-          var yy = Math.round(base - s / 2 + (rnd() - 0.5) * 80);
-          if (hits(x, yy, s)) continue;
-          var e = document.createElement('i');
-          e.className = 'sq steel';
-          e.setAttribute('data-op', '0.9');
-          e.style.cssText = 'left:' + x + 'px;top:' + yy + 'px;width:' + s + 'px;height:' + s + 'px';
-          frag.appendChild(e);
-          shapes.push({ el: e, rot: rnd() * 30 - 15, drift: (rnd() - 0.5) * 100 });
-          break;
-        }
-      }
-    })();
     bg.appendChild(frag);
 
     /* legno, corten, ferro, legno sotto la mappa (solo a destra): stessa animazione delle sbarre */
