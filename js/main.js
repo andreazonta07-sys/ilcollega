@@ -231,12 +231,12 @@
   function startBgAnim(bars, shapes, paths) {
     var barEls = bars.map(function (b) { return b.el; });
     bgTriggers = bgTriggers.concat(ScrollTrigger.batch(barEls, {
-      start: 'top 97%', once: true,
+      start: 'clamp(top 50%)', once: true,
       onEnter: function (b) { gsap.to(b, { xPercent: 0, duration: 1.25, ease: 'circ.out', stagger: 0.07 }); }
     }));
     var shEls = shapes.map(function (s) { return s.el; });
     bgTriggers = bgTriggers.concat(ScrollTrigger.batch(shEls, {
-      start: 'top 96%', once: true,
+      start: 'clamp(top 50%)', once: true,
       onEnter: function (b) { gsap.to(b, { scale: 1, opacity: function (i, el) { return parseFloat(el.getAttribute('data-op')) || 0.55; }, duration: 1.1, ease: 'back.out(1.8)', stagger: 0.08 }); }
     }));
     shapes.forEach(function (s) {
@@ -245,7 +245,7 @@
     });
     paths.forEach(function (p) {
       var st = ScrollTrigger.create({
-        trigger: p, start: 'top 92%', once: true,
+        trigger: p, start: 'clamp(top 50%)', once: true,
         onEnter: function () { gsap.to(p, { strokeDashoffset: 0, duration: 1.8, ease: 'sine.inOut' }); }
       });
       bgTriggers.push(st);
@@ -331,12 +331,12 @@
 
       /* titoli a maschera */
       ScrollTrigger.batch($$('.rv-line > span'), {
-        start: 'top 92%', once: true,
+        start: 'clamp(top 50%)', once: true,
         onEnter: function (b) { gsap.to(b, { yPercent: 0, duration: 1.15, ease: 'power4.out', stagger: 0.12 }); }
       });
       /* testi: dissolvenza con sfocatura (blur) */
       ScrollTrigger.batch($$('.rv').filter(function (e) { return !e.closest('.hero'); }), {
-        start: 'top 90%', once: true,
+        start: 'clamp(top 50%)', once: true,
         onEnter: function (b) {
           gsap.to(b, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: 'power2.out', stagger: 0.1,
             onComplete: function () { gsap.set(b, { clearProps: 'transform,opacity,filter' }); } });
@@ -345,7 +345,7 @@
       /* immagini: tendina in clip-path */
       $$('.wipe').forEach(function (el) {
         ScrollTrigger.create({
-          trigger: el, start: 'top 88%', once: true,
+          trigger: el, start: 'clamp(top 50%)', once: true,
           onEnter: function () {
             gsap.to(el, { clipPath: 'inset(0 0% 0 0)', duration: 1.3, ease: 'power3.inOut', onComplete: function () { gsap.set(el, { clearProps: 'clipPath' }); } });
           }
