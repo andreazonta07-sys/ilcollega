@@ -153,67 +153,29 @@
       });
     }
 
-    /* --- crepe in corten sull'ultimo terzo --- */
-    var svg = document.createElementNS(NS, 'svg');
-    svg.setAttribute('class', 'cracks');
-    svg.innerHTML = '<defs><linearGradient id="cg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="' + W + '" y2="0"><stop offset="0" stop-color="#d4753a"/><stop offset=".5" stop-color="#9a4318"/><stop offset="1" stop-color="#cf6a2c"/></linearGradient></defs>';
-    var cracks = [];
-    /* le scritte rosse non devono mai essere toccate dalle crepe: area vietata attorno a ogni titolo/etichetta rossa */
-    var redBoxes = [];
-    $$('h2,h3,.eyebrow,.acc-t,.acc-n,.tel-big,.contatti span,.alert,.hero .hl').forEach(function (n) {
-      var r = n.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) redBoxes.push([r.left - 20, r.top - pr.top - 20, r.right + 20, r.bottom - pr.top + 20]);
-    });
-    function blocked(x, yy) {
-      for (var i = 0; i < redBoxes.length; i++) {
-        var b = redBoxes[i];
-        if (x > b[0] && x < b[2] && yy > b[1] && yy < b[3]) return true;
-      }
-      return false;
-    }
-    function segBlocked(x0, y0, x1, y1) {
-      var n = Math.max(2, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 5));
-      for (var k = 0; k <= n; k++) { if (blocked(x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n)) return true; }
-      return false;
-    }
-    function grow(x, yy, ang, segs, w, depth) {
-      if (blocked(x, yy)) return;
-      var d = 'M' + x.toFixed(1) + ' ' + yy.toFixed(1), n = 0;
-      for (var i = 0; i < segs; i++) {
-        ang += (rnd() - 0.5) * 0.95;
-        var l = 14 + rnd() * 36;
-        var nx = x + Math.cos(ang) * l, ny = yy + Math.sin(ang) * l;
-        if (segBlocked(x, yy, nx, ny)) break;     // la crepa si ferma prima di toccare una scritta rossa
-        x = nx; yy = ny; n++;
-        d += ' L' + x.toFixed(1) + ' ' + yy.toFixed(1);
-        if (depth < 2 && rnd() < 0.2) grow(x, yy, ang + (rnd() < 0.5 ? -1 : 1) * (0.5 + rnd() * 0.8), Math.max(3, Math.floor(segs * 0.55)), w * 0.62, depth + 1);
-      }
-      if (n > 0) cracks.push({ d: d, w: w });
-    }
-    var cy0 = chTop >= 0 ? Math.min(H * 0.68, chTop - 30) : H * 0.68, cy1 = H * 0.975, nc = Math.round((cy1 - cy0) / (small ? 300 : 240));
-    var zt = Math.max(0, Math.floor(cy0 - 80));
-    svg.setAttribute('viewBox', '0 ' + zt + ' ' + W + ' ' + (H - zt));
-    svg.style.height = (H - zt) + 'px';
-    for (var c = 0; c < nc; c++) {
-      grow(rnd() * W, cy0 + rnd() * (cy1 - cy0 - 160), Math.PI / 2 + (rnd() - 0.5) * 2.6, 6 + Math.floor(rnd() * 9), 1.6 + rnd() * 1.6, 0);
-    }
-    /* crepe in più dietro i lati della sezione "Chiama per parlarne" */
-    if (chTop >= 0) {
-      for (var cc = 0; cc < (small ? 3 : 6); cc++) {
-        var cxx = (cc % 2 === 0 ? 0.04 + rnd() * 0.22 : 0.74 + rnd() * 0.22) * W;
-        grow(cxx, chTop + 30 + rnd() * Math.max(40, chBot - chTop - 260), Math.PI / 2 + (rnd() - 0.5) * 2.2, 7 + Math.floor(rnd() * 8), 1.6 + rnd() * 1.6, 0);
-      }
-    }
+    /* --- sezione "Chiama per parlarne": 4 sbarre in simmetria centrale rispetto alla scheda ---
+       2 in alto a sinistra (dal bordo sinistro dello schermo), 2 in basso a destra (specchio rispetto al centro) */
     var paths = [];
-    cracks.forEach(function (k) {
-      var glow = document.createElementNS(NS, 'path');
-      glow.setAttribute('d', k.d); glow.setAttribute('stroke', '#c2602a'); glow.setAttribute('stroke-opacity', '.14'); glow.setAttribute('stroke-width', (k.w * 4).toFixed(1));
-      var p = document.createElementNS(NS, 'path');
-      p.setAttribute('d', k.d); p.setAttribute('stroke', 'url(#cg)'); p.setAttribute('stroke-width', k.w.toFixed(1));
-      svg.appendChild(glow); svg.appendChild(p);
-      paths.push(glow, p);
-    });
-    bg.appendChild(svg);
+    var card = $('.chiama-card');
+    if (card) {
+      var kr = card.getBoundingClientRect();
+      var cTop = kr.top - pr.top, cBot = kr.bottom - pr.top, cMid = (cTop + cBot) / 2;
+      var bh = small ? 34 : 56, gp = small ? 8 : 12;
+      var defs = [
+        { mat: 'steel',  len: (small ? 0.26 : 0.30) * W, y: cTop - 2 * bh - gp - (small ? 14 : 24) },
+        { mat: 'corten', len: (small ? 0.18 : 0.21) * W, y: cTop - bh - (small ? 14 : 24) }
+      ];
+      defs.forEach(function (d) {
+        [['l', d.y], ['r', 2 * cMid - d.y - bh]].forEach(function (pos) {
+          var e = document.createElement('i');
+          e.className = 'bar ' + d.mat + ' ' + pos[0];
+          e.style.cssText = 'top:' + Math.round(pos[1]) + 'px;height:' + bh + 'px;width:' + Math.round(d.len) + 'px';
+          if (d.mat === 'corten') e.style.backgroundPosition = '-' + Math.round(rnd() * 500) + 'px -' + Math.round(rnd() * 300) + 'px';
+          bg.appendChild(e);
+          bars.push({ el: e, side: pos[0], y: pos[1], th: bh, len: d.len });
+        });
+      });
+    }
 
     /* stato iniziale (sempre via GSAP, mai via CSS) */
     if (hasGsap && !reduce) {
