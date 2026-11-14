@@ -222,8 +222,8 @@ main,.site-footer{position:relative;z-index:2}
 .chiama-card h2{font-size:clamp(1.6rem,4.5vw,2.9rem)}
 .chiama-card .eyebrow{margin-bottom:.6rem}
 .chiama-card .lead{margin-top:.8rem;font-size:.92rem}
-.chiama-card .btn-xl{margin-top:1.2rem}
-@media (max-width:760px){.chiama-ellipse{padding:12% 12%}.chiama-card .lead{font-size:.92rem}}
+.chiama-card .btn-xl{margin-top:1.1rem;border-radius:50%;padding:1.25em 3em;justify-content:center;text-align:center;white-space:nowrap}
+@media (max-width:760px){.chiama-card .btn-xl{font-size:.74rem;letter-spacing:.05em;padding:1.2em 1.4em}.chiama-ellipse{padding:12% 12%}.chiama-card .lead{font-size:.92rem}}
 .chiama-card .lead{margin-inline:auto}
 .btn-xl{margin-top:2rem;padding:1.1em 2.2em;font-size:clamp(.95rem,2.6vw,1.2rem)}
 .chiama-note{margin-top:.8rem;font-size:.88rem;color:var(--ink-dim)}
