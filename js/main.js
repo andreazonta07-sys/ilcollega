@@ -160,10 +160,12 @@
     if (card) {
       var kr = card.getBoundingClientRect();
       var cTop = kr.top - pr.top, cBot = kr.bottom - pr.top, cMid = (cTop + cBot) / 2;
-      var bh = small ? 34 : 56, gp = small ? 8 : 12;
+      var bh = small ? 34 : 46, gp = small ? 8 : 10, into = small ? 46 : 110;
+      /* le sbarre entrano nel riquadro (restano sotto di esso) */
+      var y0b = cTop + (small ? 10 : 16);
       var defs = [
-        { mat: 'steel',  len: (small ? 0.26 : 0.30) * W, y: cTop - 2 * bh - gp - (small ? 14 : 24) },
-        { mat: 'corten', len: (small ? 0.18 : 0.21) * W, y: cTop - bh - (small ? 14 : 24) }
+        { mat: 'steel',  len: kr.left + into,                 y: y0b },
+        { mat: 'corten', len: kr.left + into * (small ? .7 : .6), y: y0b + bh + gp }
       ];
       defs.forEach(function (d) {
         [['l', d.y], ['r', 2 * cMid - d.y - bh]].forEach(function (pos) {
