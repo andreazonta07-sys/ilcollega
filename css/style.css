@@ -212,6 +212,7 @@ main,.site-footer{position:relative;z-index:2}
 .mat-wood{background:url(../img/legno.jpg) 40% 55%/1100px auto;filter:brightness(.8)}
 
 /* ============ CHIAMA ============ */
+.chiama{padding-block:clamp(1.2rem,3vw,2.2rem)!important}
 .chiama-card{max-width:760px;margin-inline:auto;padding:clamp(1.2rem,3.5vw,2.1rem);text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:4px;backdrop-filter:blur(4px)}
 .chiama-card h2{font-size:clamp(2.2rem,6.5vw,3.8rem)}
 .chiama-card .eyebrow{margin-bottom:.6rem}
