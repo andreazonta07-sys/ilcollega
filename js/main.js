@@ -488,7 +488,7 @@
     var btns = $$('.dc', deck);
     var list = btns.map(function (b) {
       var im = $('img', b);
-      return { src: b.getAttribute('data-src'), alt: im.alt, cap: group + ' — ' + im.alt };
+      return { src: b.getAttribute('data-src'), alt: im.alt, cap: b.getAttribute('data-cap') || (group + ' — ' + im.alt) };
     });
     btns.forEach(function (b, i) {
       b.addEventListener('click', function () {
