@@ -32,7 +32,7 @@
   /* posizioni verticali della texture legno con le fasce più chiare: le fasce scure (poco visibili) non si usano */
   var BRIGHT = [0, 8, 17, 25, 33, 42, 50, 58, 67, 75, 83, 92, 100, 108, 117, 125, 133, 142, 150, 158, 167, 175, 183, 192, 200, 208, 217, 225, 233, 242, 250, 258, 267, 275, 283, 292, 300, 308, 317, 325, 333, 342, 350, 483, 500, 508];
   function brightPos(r) { return '-' + Math.round(r() * 280) + 'px -' + BRIGHT[Math.floor(r() * BRIGHT.length)] + 'px'; }
-  var bgW = 0;
+  var bgW = 0, travel = null;   // barra in acciaio che attraversa lo schermo con lo scroll
   function buildBg() {
     var bg = $('#bg'), page = $('#page');
     if (!bg || !page) return;
@@ -179,6 +179,22 @@
       });
     }
 
+    /* barra in acciaio subito prima della sezione "Materiali": attraversa lo schermo in base allo scroll */
+    travel = null;
+    var matSec = $('#materiali');
+    if (matSec && hasGsap && !reduce) {
+      var mTop = matSec.getBoundingClientRect().top - pr.top, tb = null;
+      bars.forEach(function (b) { if (b.el.classList.contains('steel') && b.y > 0 && b.y + b.th < mTop && (!tb || b.y > tb.y)) tb = b; });
+      if (tb) {
+        bars.splice(bars.indexOf(tb), 1);
+        tb.len = Math.round((small ? 0.5 : 0.34) * W);
+        tb.el.classList.remove('r'); tb.el.classList.add('l');
+        tb.el.style.width = tb.len + 'px'; tb.el.style.left = '0'; tb.el.style.right = 'auto';
+        tb.el.style.borderRadius = '3px';
+        travel = tb;
+      }
+    }
+
     /* stato iniziale (sempre via GSAP, mai via CSS) */
     if (hasGsap && !reduce) {
       bars.forEach(function (b) { gsap.set(b.el, { xPercent: b.side === 'l' ? -102 : 102 }); });
@@ -187,6 +203,7 @@
         var L = p.getTotalLength ? p.getTotalLength() : 400;
         p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p._len = L;
       });
+      if (travel) gsap.set(travel.el, { x: W });
       if (animReady) startBgAnim(bars, shapes, paths);
       bg._data = { bars: bars, shapes: shapes, paths: paths };
     }
@@ -198,6 +215,22 @@
       start: 'clamp(top 50%)', once: true,
       onEnter: function (b) { gsap.to(b, { xPercent: 0, duration: 1.25, ease: 'circ.out', stagger: 0.07 }); }
     }));
+    if (travel) {
+      var tv = travel, Wp = bgW || window.innerWidth;
+      var pageTop = function () { return $('#page').getBoundingClientRect().top + window.scrollY; };
+      var tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: tv.el, scrub: 0.6,
+          start: function () { return pageTop() + tv.y - window.innerHeight * 0.95; },
+          end: function () { return pageTop() + tv.y + tv.th + window.innerHeight * 0.05; },
+          invalidateOnRefresh: true
+        }
+      });
+      /* da fuori a destra → tutta visibile al centro → fuori a sinistra */
+      tl.fromTo(tv.el, { x: Wp }, { x: (Wp - tv.len) / 2 }).to(tv.el, { x: -tv.len });
+      bgTriggers.push(tl.scrollTrigger);
+    }
     var shEls = shapes.map(function (s) { return s.el; });
     bgTriggers = bgTriggers.concat(ScrollTrigger.batch(shEls, {
       start: 'clamp(top 50%)', once: true,
