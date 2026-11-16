@@ -189,7 +189,7 @@ main,.site-footer{position:relative;z-index:2}
 .prova-btn:hover img{transform:scale(1.05)}
 
 /* ============ MATERIALI ============ */
-.mat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(.9rem,2vw,1.4rem)}
+.mat-grid{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(.9rem,2vw,1.4rem)}
 .mat{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:1rem 1rem 1.4rem;backdrop-filter:blur(3px);transition:transform .5s var(--ease),border-color .4s}
 .mat:hover{transform:translateY(-6px);border-color:var(--red-b)}
 .mat-wide{grid-column:span 2}
@@ -329,3 +329,20 @@ main,.site-footer{position:relative;z-index:2}
 .slab.wood.w2{background-position:-300px -8px}
 .slab.corten{background:url(../img/slab-corten.jpg) center/cover}
 .slab.iron{background:url(../img/slab-ferro.jpg) center/900px auto}
+
+/* telefono/tablet: le 4 lastre (legno, corten, ferro, legno) entrano dai lati ai bordi dello schermo, 2 sopra e 2 sotto la mappa, dietro di essa */
+@media (max-width:980px){
+  .dove .map{margin-block:104px}
+  .dove .slabs{top:auto;bottom:0;transform:none;width:100vw;height:calc(var(--mapH,380px) + 208px);align-items:stretch;justify-content:flex-start;gap:8px}
+  .dove .slab{height:46px;width:58vw!important}
+  .dove .slab:nth-child(odd){align-self:flex-start;border-radius:0 3px 3px 0}
+  .dove .slab:nth-child(even){align-self:flex-end;border-radius:3px 0 0 3px}
+  .dove .slab:nth-child(3){margin-top:auto}
+}
+
+/* sbarre dietro le schede dei materiali: stesso materiale della scheda, sotto di essa */
+.mat-grid>.mbar{z-index:-1;filter:none;background-repeat:repeat}
+.mat-grid>.mbar::after{display:none}
+.mbar.mat-zinc,.mbar.mat-iron,.mbar.mat-sheet,.mbar.mat-metal,.mbar.mat-screw{display:block}
+.mbar.mat-wood{filter:brightness(.8)}
+.mbar.mat-ral{display:block;background:linear-gradient(90deg,#0e0e10 0 12.5%,#383e42 0 25%,#45322e 0 37.5%,#f1ece1 0 50%,#0f4336 0 62.5%,#6b1c23 0 75%,#0e294b 0 87.5%,#e6d2b5 0)}

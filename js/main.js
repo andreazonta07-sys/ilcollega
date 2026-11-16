@@ -40,6 +40,7 @@
     bgTriggers = [];
     bg.innerHTML = '';
     $$('.opere > .bar').forEach(function (n) { n.parentNode.removeChild(n); });
+    $$('.mat-grid > .mbar').forEach(function (n) { n.parentNode.removeChild(n); });
 
     var W = page.clientWidth, H = page.offsetHeight;
     bgW = window.innerWidth;
@@ -73,7 +74,11 @@
       return matQueue.pop();
     }
     var y = small ? 72 : 64, side = rnd() < 0.5 ? 'l' : 'r';
+    /* sezione "Materiali": niente sbarre di sfondo generiche, ci sono solo quelle del materiale di ogni scheda */
+    var mtEl = $('#materiali'), mtTop = -1, mtBot = -1;
+    if (mtEl) { var mr0 = mtEl.getBoundingClientRect(); mtTop = mr0.top - pr.top; mtBot = mr0.bottom - pr.top; }
     while (y < Math.min(H - 140, bigStart - 70)) {
+      if (mtTop >= 0 && y < mtBot + 20 && y + 160 > mtTop - 20) { y = mtBot + 30; continue; }
       if (accTop >= 0 && y < accBot + 230 && y + 160 > accTop - 20) { y = accBot + 240; continue; }   // spazio libero per la coppia di lastre sotto le categorie
       if (chTop >= 0 && y < chBot + 20 && y + 160 > chTop - 20) { y = chBot + 30; continue; }
       var t = y / H;
@@ -139,7 +144,28 @@
     bg.appendChild(frag);
 
     /* legno, corten, ferro, legno sotto la mappa (solo a destra): stessa animazione delle sbarre */
-    $$('.dove .slab').forEach(function (sl) { bars.push({ el: sl, side: 'r', y: -1e9, th: 0, len: 0 }); });
+    $$('.dove .slab').forEach(function (sl, i) { var mob = window.matchMedia('(max-width:980px)').matches; bars.push({ el: sl, side: mob && i % 2 === 0 ? 'l' : 'r', y: -1e9, th: 0, len: 0 }); });
+
+    /* sezione "Materiali": dietro ogni scheda una sbarra dello stesso materiale, che entra dal bordo dello schermo verso il centro e resta sotto la scheda */
+    var mGrid = $('.mat-grid');
+    if (mGrid) {
+      var gr = mGrid.getBoundingClientRect(), vw = window.innerWidth, mbh = small ? 34 : 46;
+      $$('.mat', mGrid).forEach(function (card, i) {
+        var kind = ['zinc', 'corten', 'iron', 'sheet', 'screw', 'ral', 'metal', 'wood'].filter(function (k) { return card.querySelector('.mat-' + k); })[0];
+        if (!kind) return;
+        var cr = card.getBoundingClientRect(), cx = (cr.left + cr.right) / 2 - gr.left, mid = gr.width / 2;
+        var sd = Math.abs(cx - mid) < 20 ? (i % 2 ? 'r' : 'l') : (cx < mid ? 'l' : 'r');
+        var len = Math.round(sd === 'l' ? gr.left + cx : (vw - gr.right) + (gr.width - cx));
+        var mb = document.createElement('i');
+        mb.className = 'bar mbar mat-' + kind + ' ' + sd;
+        mb.style.top = Math.round(cr.top - gr.top + cr.height * 0.32) + 'px';
+        mb.style.height = mbh + 'px';
+        mb.style.width = len + 'px';
+        mb.style[sd === 'l' ? 'left' : 'right'] = '-' + Math.round(sd === 'l' ? gr.left : vw - gr.right) + 'px';
+        mGrid.appendChild(mb);
+        bars.push({ el: mb, side: sd, y: -1e9, th: 0, len: len });
+      });
+    }
 
     /* coppia simmetrica di lastre di legno sotto le categorie (nello spazio nero, stessa altezza, stessa misura) */
     var opS = $('#opere');
