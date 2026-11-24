@@ -346,3 +346,4 @@ main,.site-footer{position:relative;z-index:2}
 .mbar.mat-zinc,.mbar.mat-iron,.mbar.mat-sheet,.mbar.mat-metal,.mbar.mat-screw{display:block}
 .mbar.mat-wood{filter:brightness(.8)}
 .mbar.mat-ral{display:block;background:linear-gradient(90deg,#0e0e10 0 12.5%,#383e42 0 25%,#45322e 0 37.5%,#f1ece1 0 50%,#0f4336 0 62.5%,#6b1c23 0 75%,#0e294b 0 87.5%,#e6d2b5 0)}
+.site-footer .legal{flex-basis:100%;font-size:.75rem;opacity:.7;letter-spacing:.02em}
